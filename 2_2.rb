@@ -2,5 +2,4 @@
 
 require_relative './2_1.rb'
 puts 'Enter the accuracy:'
-p Integral.new(gets.to_f).eval.map { |i| i }.last
-
+p Integral.eval(gets.to_f)

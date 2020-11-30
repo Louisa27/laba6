@@ -1,32 +1,39 @@
 # frozen_string_literal: true
-
 ANS = 1.0 / 3
-# poorboy
+
 class Integral
-  attr_accessor :eps, :a_limit, :b_limit
+  
+  include Enumerable, Math
+  
+  attr_accessor :a_limit, :b_limit
 
-  def initialize(eps)
-    @a_limit = 0
-    @b_limit = 1
-    @eps = eps
+  def initialize(a_limit = 0, b_limit = 1)
+    @a_limit = a_limit
+    @b_limit = b_limit
   end
-
+  
   def func(argument)
-    argument * Math.sqrt(1 - argument * argument)
+    argument * sqrt(1 - argument * argument)
+  end
+  
+  def each
+    i = 10.0
+    loop do
+      i /= 10
+      result = (a_limit + i).step(b_limit - i, i).map { |x| func(x) }.sum
+      result += (func(@a_limit) + func(@b_limit)) / 2
+      result *= i
+      yield result
+    end
+  end
+  
+  def eval(eps)
+    each_with_index.find { |result, _| (result - ANS).abs < eps }
   end
 
-  def eval
-    i = 10.0
-    result = 0
-    Enumerator.new do |y|
-      while (result - ANS).abs > @eps
-        i /= 10
-        result = 0
-        (@a_limit + i).step(@b_limit - i, i) { |x| result += func(x) }
-        result += (func(@a_limit) + func(@b_limit)) / 2
-        result *= i
-        y.yield result
-      end
+  class << self
+    def eval(eps)
+      new.eval(eps)
     end
   end
 end
